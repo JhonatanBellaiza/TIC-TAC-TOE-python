@@ -1,6 +1,5 @@
 import re
-import  random as rnd
-
+from alpha_beta import mini_max_ab, is_game_over
 _PLAYER = "player"
 _MACHINE = "machine"
 
@@ -14,66 +13,8 @@ class TicTacToeGame():
     self.is_game_over = False
     self.winner = None
 
-  def is_over(self): # TODO: Finish this function by adding checks for a winning game (rows, columns, diagonals)
-    counter = self.board.count(None) == 0
-    if (counter):
-        self.winner = None
-        self.is_game_over = True
-        return False
-    else:
-        cell = self.board
-        if (cell[0] == cell[4] == cell[8] and cell[0] is not None):
-            self.is_game_over = True
-            if (cell[0] == _PLAYER_SYMBOL):
-                self.winner = _PLAYER
-            else:
-                self.winner = _MACHINE
-
-            return False
-        if (cell[2] == cell[4] == cell[6] and cell[2] is not None):
-            self.is_game_over = True
-            if (cell[2] == _PLAYER_SYMBOL):
-                self.winner = _PLAYER
-            else:
-                self.winner = _MACHINE
-
-            return False
-        pS = 0
-        mS = 0
-        for i in range(9):
-            if (pS == 3):
-                self.is_game_over = True
-                self.winner = _PLAYER
-
-                return False
-            elif (mS == 3):
-                self.is_game_over = True
-                self.winner = _MACHINE
-
-                return False
-
-            if (i % 3 == 0):
-                pS, mS = 0, 0
-
-            if (cell[i] is not None):
-                if (cell[i] == _PLAYER_SYMBOL):
-                    pS += 1
-                else:
-                    mS += 1
-
-            if (i < 3 and cell[i] == cell[i + 3] == cell[i + 6] and cell[i] is not None):
-                self.is_game_over = True
-                if (cell[i] == _PLAYER_SYMBOL):
-                    self.winner = _PLAYER
-
-                    return False
-
-                else:
-                    self.winner = _MACHINE
-
-                    return False
-
-    return True
+  def is_over(self):
+    return is_game_over(self.board)[0]
 
   def play(self):
     if self.turn == _PLAYER:
@@ -101,11 +42,6 @@ class TicTacToeGame():
 
       return self.player_choose_cell()
 
-    if not -1 < player_cell < 9:
-      print("Index out of limits")
-
-      return self.player_choose_cell()
-
     return player_cell
 
   def player_turn(self):
@@ -113,11 +49,8 @@ class TicTacToeGame():
 
     self.board[chosen_cell] = _PLAYER_SYMBOL
 
-  def machine_turn(self): # TODO: Finish this function by making the machine choose a random cell (use random module)
-    val = rnd.choice([0,1,2,3,4,5,6,7,8])
-    while(self.board[val] is not  None):
-        val = rnd.choice([0,1,2,3,4,5,6,7,8])
-    self.board[val] = _MACHINE_SYMBOL
+  def machine_turn(self): # TODO: Use your minimax alpha beta pruning algorithm here to set the machines turn
+    self.board = mini_max_ab(self.board, True, _MACHINE_SYMBOL, -2, 2)[1]
 
   def format_board(self):
     row0 = "|".join(list(map(lambda c: " " if c is None else c, self.board[0:3])))
@@ -131,8 +64,5 @@ class TicTacToeGame():
     print(self.format_board())
     print()
 
-  def print_result(self): # TODO: Finish this function in order to print the result based on the *winner*
-
-    print(" WINNER: {0}.".format(self.winner)
-    if self.winner is not None else " DRAW!! Try Again")
-
+  def print_result(self):
+    print(f"{_PLAYER if is_game_over(self.board)[1] == _PLAYER_SYMBOL else _MACHINE} wins!")

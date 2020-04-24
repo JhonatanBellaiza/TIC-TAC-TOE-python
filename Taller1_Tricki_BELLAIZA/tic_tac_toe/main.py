@@ -3,7 +3,7 @@ from tic_tac_toe import TicTacToeGame
 def play():
   game = TicTacToeGame()
 
-  while  game.is_over():
+  while not game.is_over():
     game.play()
     game.print()
 
