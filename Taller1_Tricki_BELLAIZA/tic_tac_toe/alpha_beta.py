@@ -17,31 +17,57 @@ def is_game_over(node):
 
     return False, None
 
-def generate_children(node, chosen_symbol): # TODO: Create a function to generate the children states for minimax evaluation
-    pass
+
+def generate_children(node, chosen_symbol):
+
+    children = []
+    for i in range(0, 8):
+        if node[i] is None:
+            child = node.copy()
+            child[i] = chosen_symbol
+            children.append(child)
+    return children
+
 
 def alternate_symbol(symbol):
     return 'o' if symbol == 'x' else 'x'
 
-def mini_max_ab(node, is_maximizing_player_turn, chosen_symbol): # TODO: Modify this minimax in order to turn it into an alpha-beta pruning version with depth cutting
+
+def mini_max_ab(node, is_maximizing_player_turn, chosen_symbol, alpha, beta):
     game_result = is_game_over(node)
 
     if game_result[0]:
         if game_result[1] is None:
             return 0, node
-
         return (-1, node) if is_maximizing_player_turn else (1, node)
 
     children = generate_children(node, chosen_symbol)
-    children_results = list(map(
-        lambda child: [
-            mini_max(child, not is_maximizing_player_turn, alternate_symbol(chosen_symbol))[0],
-            child
-        ],
-        children
-    ))
 
-    return max(children_results, key=str) if is_maximizing_player_turn else min(children_results, key=str)
+    if is_maximizing_player_turn:
+        m = -2
+        results = None
+        for child in children:
+            value = mini_max_ab(child, False, alternate_symbol(chosen_symbol), alpha, beta)
+            if m < value[0]:
+                results = child.copy()
+                m = max(m, value[0])
+            alpha = max(alpha, value[0])
+            if beta <= alpha:
+                break
+        return m, results
+
+    else:
+        m = 2
+        results = None
+        for child in children:
+            value = mini_max_ab(child, True, alternate_symbol(chosen_symbol), alpha, beta)
+            if m > value[0]:
+                results = child.copy()
+                m = min(m, value[0])
+            beta = min(beta, value[0])
+            if beta <= alpha:
+                break
+        return m, results
 
 def mini_max(node, is_maximizing_player_turn, chosen_symbol):
     game_result = is_game_over(node)
